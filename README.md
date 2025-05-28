@@ -135,3 +135,8 @@ We designed 4 macro-groups in order to increare modularity.
    - **ModemDriverNode**<br>
    Compresses data and sends them through the acoustic modem
 - Run on ***Raspberry Pi 5***
+
+## 3. Run the project
+
+**Raspberry Pi**: run `docker compose run --rm raspberry`<br>
+**Jetson Nano**: run `docker compose run --rm jetson`
