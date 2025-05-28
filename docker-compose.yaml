@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  raspberry:
+    image: ghcr.io/nautilus-unipd/raspberry-setup:latest
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - /dev:/dev
+      - /run/udev:/run/udev
+    group_add:
+      - video
+    stdin_open: true
+    tty: true
+    container_name: raspberry_setup
+
+  jetson:
+    image: ghcr.io/nautilus-unipd/jetson-nano-setup:latest
+    privileged: true
+    network_mode: "host"
+    stdin_open: true
+    tty: true
+    container_name: jetson_setup
