@@ -11,7 +11,8 @@
 /cam_right/cam_right_node:
   ros__parameters:
     frame_logged: 50
-    URI: "http://192.168.1.172:8001/video_feed"
+#    URI: "http://192.168.1.172:8001/video_feed"
+    URI: "/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a"
     fps: 30
     #URI: "http://10.5.34.51:8000:8001/video_feed"
     quality: 80
