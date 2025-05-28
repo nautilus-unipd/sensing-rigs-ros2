@@ -173,7 +173,8 @@ protected:
 private:
     bool start_camera()
     {
-        cap_.open(uri_);
+        std::string pipeline = "libcamerasrc camera-name=\"" + uri_ + "\" ! video/x-raw,width=1536,height=864,format=BGR,framerate=40/1 ! videoconvert ! appsink";
+        cap_.open(pipeline, cv::CAP_GSTREAMER);
        // auto start_time = std::chrono::steady_clock::now();
 
         if (!cap_.isOpened()) {

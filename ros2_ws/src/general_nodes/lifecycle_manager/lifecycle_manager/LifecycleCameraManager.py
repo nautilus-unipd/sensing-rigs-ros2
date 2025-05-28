@@ -2,7 +2,7 @@ from typing import cast
 from functools import partial
 from dataclasses import dataclass
 from typing import Optional, Dict
-import debugpy
+#import debugpy
 
 import rclpy
 import rclpy.client
