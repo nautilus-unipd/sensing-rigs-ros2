@@ -191,3 +191,23 @@ Launch the processing nodes
 ```bash
 ros2 launch cv_algorithms cv_algorithms_launch.py
 ```
+
+---
+
+**TEMPORARY TEST**
+Launch the test_receiver node
+```bash
+ros2 run test_receiver test_ImagePair
+```
+
+On the host machine, run
+```bash
+ssh -L 8080:jetson-nano.local:8080 admin@raspberrypi.local
+```
+and then open 
+```bash
+localhost:8080
+```
+on your browser to view the images
+
+
