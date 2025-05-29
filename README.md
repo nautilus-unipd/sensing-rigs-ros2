@@ -138,5 +138,56 @@ We designed 4 macro-groups in order to increare modularity.
 
 ## 3. Run the project
 
-**Raspberry Pi**: run `docker compose run --rm raspberry`<br>
-**Jetson Nano**: run `docker compose run --rm jetson`
+The steps required to run the code vary between different boards
+
+
+### Raspberry Pi
+
+Run this command to start the container
+```bash
+docker compose run --rm raspberry
+```
+
+`cd` inside the directory, build the project and source it
+```bash
+cd sensing-rigs-ros2/ros2_ws
+colcon build --symlink-install
+source install/setup.bash
+```
+
+Launch the capture nodes
+```bash
+ros2 launch lifecycle_manager lifecycle_manager.launch.py 
+```
+
+**TEMPORARY SOLUTION** (a complete launch file will be made)<br>
+Open a new terminal, ssh inside the raspberry, attach to running container
+```bash
+ssh admin@raspberrypi.local
+docker exec -it $(docker ps -q --filter "ancestor=ghcr.io/nautilus-unipd/raspberry-setup:latest" | head -n 1) bash
+```
+`cd` inside the directory, source the project and run the preprocessing node
+```bash
+cd sensing-rigs-ros2/ros2_ws
+source install/setup.bash
+ros2 run sensig_preprocessing PreprocessingNode
+```
+
+
+### Jetson Nano
+Run this command to start the container
+```bash
+docker compose run --rm jetson
+```
+
+`cd` inside the directory, build the project and source it
+```bash
+cd sensing-rigs-ros2/ros2_ws
+colcon build --symlink-install
+source install/setup.bash
+```
+
+Launch the processing nodes
+```bash
+ros2 launch cv_algorithms cv_algorithms_launch.py
+```
