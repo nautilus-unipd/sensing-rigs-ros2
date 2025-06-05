@@ -1,5 +1,6 @@
 import os
 import cv2
+import time
 import numpy as np
 from datetime import datetime
 
@@ -20,10 +21,14 @@ def compute_disparity_map(img_left,img_right,matcher_name="bm", verbose=False):
                                       P2=32*blockSize**2,
                                       mode= cv2.StereoSGBM_MODE_SGBM_3WAY)
     #compute disparity map
+    # CHANGE
+    new_img_left = cv2.cvtColor(img_left, cv2.COLOR_BGR2GRAY)
+    new_img_right = cv2.cvtColor(img_right, cv2.COLOR_BGR2GRAY)
+    # CHANGE
     if verbose:
-        disparity_map= matcher.compute(img_left,img_right).astype(np.float32)/16
+        disparity_map= matcher.compute(new_img_left,new_img_right).astype(np.float32)/16
     else:
-        disparity_map= matcher.compute(img_left,img_right).astype(np.float32)/16
+        disparity_map= matcher.compute(new_img_left,new_img_right).astype(np.float32)/16
         
     return disparity_map
 

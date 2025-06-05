@@ -1,11 +1,14 @@
 import rclpy
 from cv_bridge import CvBridge
 from custom_msgs.msg import MonoIR
+from custom_msgs.msg import ImagePair
 from sensor_msgs.msg import CompressedImage
 from rclpy.qos import QoSProfile, HistoryPolicy
 from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.lifecycle import Node, Publisher, State, TransitionCallbackReturn
 from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
+
+from rclpy.qos import qos_profile_sensor_data
 
 from cv_algorithms.methods_mono_ir import *
 
@@ -13,15 +16,17 @@ from cv_algorithms.methods_mono_ir import *
 Class to create a Python node to compute and publish
 image recognition algorithm on monovision
 """
-class NodeMonoIR(Node):
+class MonoIRNode(Node):
     """
     Define class costants
     """
     TN_MONO = "/output/cv_mono_ir"
-	# TODO
-    TN_INPUT = "/TODO/your/topic/name"
-    QOS_DEPTH_SUB = 1
-    QOS_DEPTH_PUB = 5
+    TN_INPUT = "/stereo/image_pair"
+    QOS_DEPTH_SUB = 10
+    QOS_DEPTH_PUB = 10
+    PARAM_NAME_DEBUG = "debug"
+    PARAM_NAME_SAVE = "save"
+    PARAM_NAME_TIME = "time"
     CAMERA_ID = 0 # id of the camera (default is 0, if there's more than one camera change the integer)
     INFERENCE_INTERVAL = 2 # interval (in seconds) for capturing data
     CONF_THRESHOLD = 0.5 # threshold of confidence the inference must have in order to save
@@ -29,7 +34,7 @@ class NodeMonoIR(Node):
     THICKNESS_BOX_AND_TEXT = 1 # thickness of lines and text
     FONT_SIZE = 2 # scale the font size
 	# TODO
-    MODEL_PATH = "/home/ubuntu/ROS2_WSs/ws_sensing_rigs_v_two/src/cv_algorithms/cv_algorithms/models/yolo11n.pt"
+    MODEL_PATH = "/home/ubuntu/ROS2_WSs/ws_sensing_rigs_v_three/src/cv_algorithms/cv_algorithms/models/yolo11n.pt"
 
     """
     Default class constructor
@@ -44,21 +49,25 @@ class NodeMonoIR(Node):
         # Initialize parameters
         param_descr_debug = ParameterDescriptor(description = "Prints additional debug informations.")
         param_descr_save = ParameterDescriptor(description = "Saves odometry messages on ROSbags.")
-        self.declare_parameter("debug", False, param_descr_debug)
-        self.declare_parameter("save", False, param_descr_save)
+        param_descr_time = ParameterDescriptor(description = "Prints processing time of the frames.")
+        self.declare_parameter(self.PARAM_NAME_DEBUG, False, param_descr_debug)
+        self.declare_parameter(self.PARAM_NAME_SAVE, False, param_descr_save)
+        self.declare_parameter(self.PARAM_NAME_TIME, False, param_descr_time)
 
     """
     Function to initialize node's variables
     """
     def init_var(self):
+        self.comp_time = 0
+        self.analysed = 0
+        self.busy = False
         # Initialize QoS profiles
         qos_profile_pub = QoSProfile(depth=self.QOS_DEPTH_PUB)
-		#TODO: compatible?
-        qos_profile_sub = QoSProfile(history=HistoryPolicy.KEEP_LAST, depth=self.QOS_DEPTH_SUB)
+        #qos_profile_sub = QoSProfile(history=HistoryPolicy.KEEP_LAST, depth=self.QOS_DEPTH_SUB)
         # Publisher
-        self.publisher_ = self.create_publisher(MonoIR, self.TN_MONO, qos_profile_pub)
+        self.publisher_ = self.create_lifecycle_publisher(MonoIR, self.TN_MONO, qos_profile_pub)
         # Subscriber
-        self.subscriber_ = self.create_subscription(CompressedImage, self.TN_INPUT, self.callback_subscribe, qos_profile_sub)
+        self.subscriber_ = self.create_subscription(ImagePair, self.TN_INPUT, self.callback_subscribe, qos_profile_sensor_data)
         self.subscriber_
         
     """
@@ -84,11 +93,13 @@ class NodeMonoIR(Node):
     """
     """
     def on_activate(self, state: State) -> TransitionCallbackReturn:
+        self.busy = False
         return super().on_activate(state)
 
     """
     """
     def on_deactivate(self, state: State) -> TransitionCallbackReturn:
+        self.busy = True
         return super().on_deactivate(state)
 
     """
@@ -101,23 +112,22 @@ class NodeMonoIR(Node):
     """
     """
     def on_shutdown(self, state: State) -> TransitionCallbackReturn:
-        self.destroy_publisher(self.publisher_)
-        self.destroy_subscriber(self.subscriber_)
         return TransitionCallbackReturn.SUCCESS
 
     """
     Function that lists all parameters
     """
     def status_param(self):
-        self.get_logger().info(f"debug:\t{self.get_parameter('debug').get_parameter_value().bool_value}")
-        self.get_logger().info(f"save:\t{self.get_parameter('save').get_parameter_value().bool_value}")
+        self.get_logger().info(f"debug:\t{self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value}")
+        self.get_logger().info(f"save:\t{self.get_parameter(self.PARAM_NAME_SAVE).get_parameter_value().bool_value}")
+        self.get_logger().info(f"time:\t{self.get_parameter(self.PARAM_NAME_TIME).get_parameter_value().bool_value}")
 
     """
     Callback function to publish result
     """
     def callback_publish(self, ts, label, cd, coordinates):
         if (self.publisher_ is None) or (not self.publisher_.is_activated):
-            if self.get_parameter("debug").get_parameter_value().bool_value:
+            if self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value:
                 self.get_logger().info("Data received, but inactive node!")
         else:
             message = MonoIR()
@@ -125,9 +135,9 @@ class NodeMonoIR(Node):
             message.label = label
             message.confidence = cd
             message.box = coordinates
-            if self.get_parameter("debug").get_parameter_value().bool_value:
-                self.get_logger().info(f"Published:\n\t{ts}\n\t{label}\n\t{cd}\n\t{coordinates}")
-            if self.get_parameter("save").get_parameter_value().bool_value:
+            if self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value:
+                self.get_logger().info("Published message!")
+            if self.get_parameter(self.PARAM_NAME_SAVE).get_parameter_value().bool_value:
                 self.get_logger().info("Message saved to rosbag!")
             self.publisher_.publish(message)
 
@@ -135,14 +145,24 @@ class NodeMonoIR(Node):
     Callback function to get input data
     """
     def callback_subscribe(self, msg):
-        if (self.publisher_ is None) or (not self.publisher_.is_activated):
-            if self.get_parameter("debug").get_parameter_value().bool_value:
+        if self.busy:
+            pass
+        elif (self.publisher_ is None) or (not self.publisher_.is_activated):
+            if self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value:
                 self.get_logger().info("Frame received, but inactive node!")
         else:
-            if self.get_parameter("debug").get_parameter_value().bool_value:
+            self.busy = True
+            if self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value:
                 self.get_logger().info("Frame received!")
-            frame = self.bridge.imgmsg_to_cv2(msg)
+            frame = self.bridge.compressed_imgmsg_to_cv2(msg.right)
+            if self.get_parameter(self.PARAM_NAME_TIME).get_parameter_value().bool_value:
+                self.time = time.time()
             out = self.analyze_frame(frame)
+            self.analysed += 1
+            if self.get_parameter(self.PARAM_NAME_TIME).get_parameter_value().bool_value:
+                self.comp_time += time.time() - self.time
+                self.get_logger().info(f"Analysed {self.analysed}\tMean {self.comp_time / self.analysed}[s]")
+            self.busy = False
             if out:
                 timestamp = out[0]
                 name = out[1]
@@ -154,16 +174,16 @@ class NodeMonoIR(Node):
     """
     def analyze_frame(self, frame):
         # Lista per il log
-        log_data = []
+        log_data = ["0000-00-00 00:00:00", "NaC", [0.0, 0.0, 0.0, 0.0, 0.0]]
         try:
             current_time = time.time()
             # Process the current frame, detect movement and save in prev_gray the processed current frame (to avoid processing 2 times the same frame)
             current_gray = gray_and_blur(frame)
             if(self.prev_gray == None):
                 self.prev_gray = current_gray.copy()
-                if self.get_parameter("debug").get_parameter_value().bool_value:
+                if self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value:
                     self.get_logger().info("First frame acquired!")
-                return log_data
+                return []
             movement_detected = processed_movement_detection(self.prev_gray, current_gray)
             if movement_detected:
                 # Inference
@@ -176,6 +196,7 @@ class NodeMonoIR(Node):
                 ]
                 if confident_boxes:
                     # Save annotated frame
+                    log_data = []
                     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") #different format from time.time(), needed for putting human-readable timestamps
                     log_data.append(timestamp)
                     log_data.append("Crab")
@@ -184,6 +205,10 @@ class NodeMonoIR(Node):
                         annotate_frame(self.model, annotated_frame, box, self.COLOR_BOX_AND_TEXT, self.FONT_SIZE, self.THICKNESS_BOX_AND_TEXT)
                         x1, y1, x2, y2 = map(int, box.xyxy[0])
                         log_data.append([float(box.conf[0]), x1, y1, x2, y2])
+                else:
+                    return log_data
+            else:
+                return log_data
             # Reset timer for inference
             self.last_frameCheck_time = current_time
 
@@ -195,7 +220,7 @@ class NodeMonoIR(Node):
 def main(args = None):
     rclpy.init(args = args)
     exectr = MultiThreadedExecutor()
-    monoir_node = NodeMonoIR("lc_monoir_node")
+    monoir_node = MonoIRNode("lc_monoir_node")
     exectr.add_node(monoir_node)
     try:
         exectr.spin()

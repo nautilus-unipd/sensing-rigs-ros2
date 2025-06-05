@@ -1,1 +1,3 @@
 flask
+python3-opencv
+python-pytorch-pip

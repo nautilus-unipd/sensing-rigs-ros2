@@ -13,7 +13,7 @@ setup(
         #("share/" + package_name, ["package.xml"]),
         (os.path.join("share", package_name), glob("package.xml")),
         #("share/" + package_name + "/launch", ["launch/cv_algorithms_launch.py"]),
-        (os.path.join("share", package_name, "launch"), glob("launch/*")),
+        (os.path.join("share", package_name, "launch"), glob("launch/*.py")),
         (os.path.join("share", package_name, "config"), glob("config/*.yaml")),
     ],
     install_requires = ["setuptools"],

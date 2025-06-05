@@ -2,7 +2,7 @@ import debugpy
 import time
 import rclpy
 from rclpy.node import Node
-from dual_camera_msgs.msg import ImagePair # type: ignore
+from custom_msgs.msg import ImagePair # type: ignore
 from rclpy.qos import qos_profile_sensor_data
 import numpy as np
 from sensor_msgs.msg import CompressedImage

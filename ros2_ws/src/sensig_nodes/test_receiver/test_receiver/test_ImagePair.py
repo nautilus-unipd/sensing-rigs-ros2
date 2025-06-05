@@ -2,7 +2,7 @@ import rclpy
 import time
 import threading
 from rclpy.node import Node
-from dual_camera_msgs.msg import ImagePair  # type: ignore
+from custom_msgs.msg import ImagePair  # type: ignore
 from rclpy.qos import qos_profile_sensor_data
 import numpy as np
 import cv2

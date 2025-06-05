@@ -2,4 +2,5 @@
 /cv_algorithms/stereo_ir_node:
     ros__parameters:
         debug:  true
-        save:   true
+        save:   false
+        time:   true

@@ -6,7 +6,7 @@ import rclpy.qos
 from message_filters import Subscriber, ApproximateTimeSynchronizer
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import CompressedImage
-from dual_camera_msgs.msg import ImagePair  # type: ignore
+from custom_msgs.msg import ImagePair  # type: ignore
 
 class PreprocessingNode(Node):
     def __init__(self):
