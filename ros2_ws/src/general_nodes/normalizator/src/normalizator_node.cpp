@@ -31,27 +31,27 @@ void NormalizatorNode::init_var(void)
         
 
     // initialize lambda functions
-    auto callback_mono_ir = [this](custom_msgs::msg::MonoIR::UniquePtr msg) -> void
+    auto callback_mono_ir = [this](modem_msgs::msg::MonoIR::UniquePtr msg) -> void
     {
-        custom_msgs::msg::JsonString output;
+        std_msgs::msg::String output;
         output.data = "\n{\n\t\"mono_ir\": {\n\t\t\"timestamp\": \"" + msg->timestamp + "\",\n\t\t\"label\": \"" + msg->label + "\",\n\t\t\"confidence\": \"" + std::to_string(msg->confidence) + "\",\n\t\t\"box\": {\"" + std::to_string(msg->box[0]) + "\", \"" + std::to_string(msg->box[1]) + "\", \"" + std::to_string(msg->box[2]) + "\", \"" + std::to_string(msg->box[3]) + "\"}\n\t}\n}\n";
         if(this->debug)
         {
             RCLCPP_INFO(this->get_logger(), output.data.c_str());
         }
     };
-    auto callback_stereo_vo = [this](custom_msgs::msg::StereoVO::UniquePtr msg) -> void
+    auto callback_stereo_vo = [this](modem_msgs::msg::StereoVO::UniquePtr msg) -> void
     {
-        custom_msgs::msg::JsonString output;
+        std_msgs::msg::String output;
         output.data = "\n{\n\t\"odometry\": {\n\t\t\"timestamp\": \"" + msg->timestamp + "\",\n\t\t\"translation\": {\"" + std::to_string(msg->translation[0]) + "\", \"" + std::to_string(msg->translation[1]) + "\", \"" + std::to_string(msg->translation[2]) + "\"},\n\t\t\"rotation\": {\"" + std::to_string(msg->rotation[0]) + "\", \"" + std::to_string(msg->rotation[1]) + "\", \"" + std::to_string(msg->rotation[2]) + "\", \"" + std::to_string(msg->rotation[3]) + "\", \"" + std::to_string(msg->rotation[4]) + "\", \"" + std::to_string(msg->rotation[5]) + "\", \"" + std::to_string(msg->rotation[6]) + "\", \"" + std::to_string(msg->rotation[7]) + "\", \"" + std::to_string(msg->rotation[8]) + "\"}\n\t}\n}\n";
         if(this->debug)
         {
             RCLCPP_INFO(this->get_logger(), output.data.c_str());
         }
     };
-    auto callback_stereo_ir = [this](custom_msgs::msg::StereoIR::UniquePtr msg) -> void
+    auto callback_stereo_ir = [this](modem_msgs::msg::StereoIR::UniquePtr msg) -> void
     {
-        custom_msgs::msg::JsonString output;
+        std_msgs::msg::String output;
         output.data = "\n{\n\t\"stereo_ir\": {\n\t\t\"timestamp\": \"" + msg->timestamp + "\",\n\t\t\"label\": \"" + msg->label + "\"\n\t}\n}\n";
         if(this->debug)
         {
@@ -66,12 +66,12 @@ void NormalizatorNode::init_var(void)
     rclcpp::QoS qos_profile_pub = rclcpp::QoS(rclcpp::KeepLast(this->QOS_DEPTH_PUB), rmw_qos_profile_default);
 
     // create subscription for every topic
-    this->sub_mono_ir_ = this->create_subscription<custom_msgs::msg::MonoIR>(this->TN_MONO_IR, qos_profile_sub, callback_mono_ir);
-    this->sub_stereo_vo_ = this->create_subscription<custom_msgs::msg::StereoVO>(this->TN_STEREO_VO, qos_profile_sub, callback_stereo_vo);
-    this->sub_stereo_ir_ = this->create_subscription<custom_msgs::msg::StereoIR>(this->TN_STEREO_IR, qos_profile_sub, callback_stereo_ir);
+    this->sub_mono_ir_ = this->create_subscription<modem_msgs::msg::MonoIR>(this->TN_MONO_IR, qos_profile_sub, callback_mono_ir);
+    this->sub_stereo_vo_ = this->create_subscription<modem_msgs::msg::StereoVO>(this->TN_STEREO_VO, qos_profile_sub, callback_stereo_vo);
+    this->sub_stereo_ir_ = this->create_subscription<modem_msgs::msg::StereoIR>(this->TN_STEREO_IR, qos_profile_sub, callback_stereo_ir);
 
     // create publisher
-    this->pub_json_ = this->create_publisher<custom_msgs::msg::JsonString>(this->TN_MODEM, qos_profile_pub);
+    this->pub_json_ = this->create_publisher<std_msgs::msg::String>(this->TN_MODEM, qos_profile_pub);
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn NormalizatorNode::on_configure(const rclcpp_lifecycle::State&)

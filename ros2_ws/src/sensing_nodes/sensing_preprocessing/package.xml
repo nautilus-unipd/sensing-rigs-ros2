@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>lifecycle_manager</name>
+    <name>sensing_preprocessing</name>
     <version>0.0.1</version>
     <description>TODO: Package description</description>
     <maintainer email="68518128+Jacopix@users.noreply.github.com">ubuntu</maintainer>

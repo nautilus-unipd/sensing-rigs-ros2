@@ -5,14 +5,15 @@
 #ifndef NORMALIZATOR_NODE_HPP
 #define NORMALIZATOR_NODE_HPP
 
-#include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <string>
-#include <rclcpp/qos.hpp>
-#include <rmw/qos_profiles.h>
-#include "custom_msgs/msg/mono_ir.hpp"
-#include "custom_msgs/msg/stereo_ir.hpp"
-#include "custom_msgs/msg/stereo_vo.hpp"
-#include "custom_msgs/msg/json_string.hpp"
+
+#include "rclcpp/qos.hpp"
+#include "rmw/qos_profiles.h"
+#include "std_msgs/msg/string.hpp"
+#include "modem_msgs/msg/mono_ir.hpp"
+#include "modem_msgs/msg/stereo_ir.hpp"
+#include "modem_msgs/msg/stereo_vo.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
 class NormalizatorNode : public rclcpp_lifecycle::LifecycleNode
 {
@@ -74,10 +75,10 @@ class NormalizatorNode : public rclcpp_lifecycle::LifecycleNode
         /**
          * Class variables
          */
-        rclcpp_lifecycle::LifecyclePublisher<custom_msgs::msg::JsonString>::SharedPtr pub_json_;
-        rclcpp::Subscription<custom_msgs::msg::MonoIR>::SharedPtr sub_mono_ir_;
-        rclcpp::Subscription<custom_msgs::msg::StereoIR>::SharedPtr sub_stereo_ir_;
-        rclcpp::Subscription<custom_msgs::msg::StereoVO>::SharedPtr sub_stereo_vo_;
+        rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::String>::SharedPtr pub_json_;
+        rclcpp::Subscription<modem_msgs::msg::MonoIR>::SharedPtr sub_mono_ir_;
+        rclcpp::Subscription<modem_msgs::msg::StereoIR>::SharedPtr sub_stereo_ir_;
+        rclcpp::Subscription<modem_msgs::msg::StereoVO>::SharedPtr sub_stereo_vo_;
         bool debug;
 };
 

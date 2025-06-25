@@ -11,11 +11,14 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+list(APPEND CMAKE_PREFIX_PATH "/home/ubuntu/ROS2_WSs/repo_sensing_rigs/ros2_ws/install/modem_msgs")
+
 # Find required packages
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(custom_msgs REQUIRED)
+find_package(modem_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 # Specify include directory
 include_directories(include)
@@ -25,15 +28,16 @@ add_executable(${PROJECT_NAME}_node
     src/normalizator_node.cpp
     src/normalizator_main.cpp
     )
+# Link dependencies used
 ament_target_dependencies(${PROJECT_NAME}_node
     rclcpp
-    custom_msgs
+    rclcpp_lifecycle 
+    std_msgs
+    modem_msgs
     )
-
-#
 target_link_libraries(${PROJECT_NAME}_node rclcpp_lifecycle::rclcpp_lifecycle)
 
-#
+# Copy include directory to installation
 install(DIRECTORY include/ DESTINATION include)
 
 # Create executable

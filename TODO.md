@@ -1,0 +1,1 @@
+ - [ ] The package "cv\_algorithms" doesn't find the required package "modem\_msgs" at build time (colcon build), I had to hard code the installation path of the last package in "CMakeLists.txt" of "cv\_algorithms"

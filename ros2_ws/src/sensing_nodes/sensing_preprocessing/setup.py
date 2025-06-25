@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'lifecycle_manager'
+package_name = 'sensing_preprocessing'
 
 setup(
     name=package_name,
@@ -10,7 +10,6 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/lifecycle_manager_launch.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -21,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'LifecycleCameraManager = ' + package_name + '.LifecycleCameraManager:main',
+            'PreprocessingNode = ' + package_name + '.PreprocessingNode:main',
         ],
     },
 )

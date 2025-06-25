@@ -125,7 +125,7 @@ We designed 4 macro-groups in order to increare modularity.
    - **StereoVisionNode**<br>
    Classification with stereo-vision
    - **VisualOdometryNode**<br>
-   ?
+   Trajectory estimation
 - Run on ***Nvidia Jetson Nano***
 
 #### Communication
