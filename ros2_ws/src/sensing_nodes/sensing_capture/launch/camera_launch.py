@@ -12,7 +12,7 @@ def generate_launch_description():
     )
 
     cam_left = LifecycleNode(
-        package='sensnig_capture',
+        package='sensing_capture',
         executable='camera_node',
         name='cam_left_node',
         namespace='cam_left',
