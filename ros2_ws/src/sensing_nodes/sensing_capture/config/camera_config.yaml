@@ -1,22 +1,24 @@
 /cam_left/cam_left_node:
   ros__parameters:
     frame_logged: 50
+    # URI: "http://192.168.1.172:8000/video_feed"
     URI: "/base/axi/pcie@1000120000/rp1/i2c@88000/imx708@1a"
-    #URI: "http://192.168.1.172:8000/video_feed"
-    #URI: "http://10.5.34.51:8000:8000/video_feed"
     fps: 30
     quality: 80
     compression_format: ".jpg"
+    width: 640
+    height: 420
 
 /cam_right/cam_right_node:
   ros__parameters:
     frame_logged: 50
-#    URI: "http://192.168.1.172:8001/video_feed"
+    # URI: "http://192.168.1.172:8001/video_feed"
     URI: "/base/axi/pcie@1000120000/rp1/i2c@80000/imx708@1a"
     fps: 30
-    #URI: "http://10.5.34.51:8000:8001/video_feed"
     quality: 80
     compression_format: ".jpg"
+    width: 640
+    height: 420
 
 
 # Note: if a different compression format is choose, 'encode_param' in CameraNode must be modified

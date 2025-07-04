@@ -47,6 +47,10 @@ protected:
             fps_ = this->declare_parameter<int>("fps", 0);
         if( !this->has_parameter("compression_format") )
             compression_format_ = this->declare_parameter<std::string>("compression_format", ".jpg");
+        if( !this->has_parameter("width") )
+            width_ = this->declare_parameter<int>("width", 640);
+        if( !this->has_parameter("height") )
+            height_ = this->declare_parameter<int>("height", 420);
 
         // Check URI
         if (uri_.empty()) {
@@ -173,7 +177,7 @@ protected:
 private:
     bool start_camera()
     {
-        std::string pipeline = "libcamerasrc camera-name=\"" + uri_ + "\" ! video/x-raw,width=1536,height=864,format=BGR,framerate=40/1 ! videoconvert ! appsink";
+        std::string pipeline = "libcamerasrc camera-name=\"" + uri_ + "\" ! video/x-raw,width=" + std::to_string(width_) + ",height=" + std::to_string(height_) + ",format=BGR,framerate=40/1 ! videoconvert ! appsink";
         cap_.open(pipeline, cv::CAP_GSTREAMER);
        // auto start_time = std::chrono::steady_clock::now();
 
@@ -216,7 +220,7 @@ private:
         msg.format = compression_format_;
         msg.data = encoded;
 
-        RCLCPP_INFO(this->get_logger(), "Publishing frame: %s", msg.header.frame_id.c_str());
+        RCLCPP_DEBUG(this->get_logger(), "Publishing frame: %s", msg.header.frame_id.c_str());
 
         publisher_->publish(msg);
 
@@ -224,7 +228,7 @@ private:
         total_frames_++;
 
         if (frame_counter_ >= frame_logged_) {
-            RCLCPP_INFO(get_logger(), "Published %d frames (total %d)", frame_counter_, total_frames_);
+            RCLCPP_DEBUG(get_logger(), "Published %d frames", total_frames_);
             frame_counter_ = 0;
         }
     }
@@ -234,6 +238,8 @@ private:
     int quality_;
     int frame_logged_;
     int fps_;
+    int width_;
+    int height_;
     std::string compression_format_;
     std::string last_state_;
 

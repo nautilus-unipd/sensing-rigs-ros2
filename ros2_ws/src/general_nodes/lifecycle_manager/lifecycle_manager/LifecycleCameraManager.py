@@ -86,7 +86,7 @@ class LifecycleCameraManager(Node):
             # Update current state
             self.nodes[node_name].current_state = future.result().current_state.id
             self.nodes[node_name].waiting_state_update = False
-            self.get_logger().info(f'Updating state for camera {node_name}')
+            self.get_logger().debug(f'Updating state for camera {node_name}')
 
             # Pending state is reached. Reset pending state and stop transition_timer
             if self.nodes[node_name].current_state == self.nodes[node_name].pending_state:
@@ -181,7 +181,8 @@ def main(args=None):
 
 
     rclpy.init(args=args)
-    #debug()
+    # Uncomment to use as debug entry poin on VSCode
+    # debug()
     node = LifecycleCameraManager()
     executor = MultiThreadedExecutor()
     executor.add_node(node)
