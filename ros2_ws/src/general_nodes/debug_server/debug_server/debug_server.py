@@ -10,9 +10,9 @@ from flask import Flask, Response
 
 latest_frame = None  # global frame buffer
 
-class TestSubscriber(Node):
+class DebugServer(Node):
     def __init__(self):
-        super().__init__('test_subscriber')
+        super().__init__('debug_server_node')
         self.qos_profile = qos_profile_sensor_data
         self.subscription = self.create_subscription(ImagePair, '/stereo/image_pair', self.listener_callback, self.qos_profile)
 
@@ -73,7 +73,7 @@ def flask_thread():
 def main(args=None):
     rclpy.init(args=args)
 
-    ros_node = TestSubscriber()
+    ros_node = DebugServer()
 
     # Start Flask server in separate thread
     flask_threading = threading.Thread(target=flask_thread, daemon=True)

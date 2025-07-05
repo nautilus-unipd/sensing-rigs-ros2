@@ -27,6 +27,7 @@ class PreprocessingNode(Node):
             queue_size,
             max_delay
         )
+        self.get_logger().info("Starting PreprocessingNode")
         self.sync.registerCallback(self.SyncCallback)
 
     def SyncCallback(self, left_frame, right_frame):
@@ -36,7 +37,6 @@ class PreprocessingNode(Node):
         msg.right = right_frame
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = str(self.counter)
-        self.get_logger().info("Test")
         self.publisher_.publish(msg)
 
     # def timer_callback(self, msg):
