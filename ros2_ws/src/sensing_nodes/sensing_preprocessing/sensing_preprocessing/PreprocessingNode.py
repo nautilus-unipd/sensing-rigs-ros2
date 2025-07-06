@@ -13,12 +13,12 @@ class PreprocessingNode(Node):
         super().__init__('preprocessing_node') 
         # Setup publisher
         self.qos_profile = qos_profile_sensor_data
-        self.publisher_ = self.create_publisher(ImagePair, '/stereo/image_pair', self.qos_profile)
+        self.publisher_ = self.create_publisher(ImagePair, '/r1/stereo/image_pair', self.qos_profile)
         
         self.counter = 0
 
-        self.r_subscriber_ = Subscriber(self, CompressedImage, '/cam_right/frame', qos_profile=self.qos_profile)
-        self.l_subscriber_ = Subscriber(self, CompressedImage, '/cam_left/frame', qos_profile=self.qos_profile)
+        self.r_subscriber_ = Subscriber(self, CompressedImage, '/r1/cam_right/frame', qos_profile=self.qos_profile)
+        self.l_subscriber_ = Subscriber(self, CompressedImage, '/r1/cam_left/frame', qos_profile=self.qos_profile)
 
         queue_size = 1
         max_delay = 0.1

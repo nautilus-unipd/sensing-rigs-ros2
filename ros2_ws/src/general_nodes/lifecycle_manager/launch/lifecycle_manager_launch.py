@@ -27,7 +27,7 @@ def generate_launch_description():
         name='camera_manager_node',
         output='screen',
         parameters=[{
-            'managed_nodes': ['/cam_left/cam_left_node', '/cam_right/cam_right_node'] 
+            'managed_nodes': ['/r1/cam_left/cam_left_node', '/r1/cam_right/cam_right_node'] 
         }]
     )
 

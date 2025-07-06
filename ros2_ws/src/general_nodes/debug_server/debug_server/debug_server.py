@@ -14,7 +14,7 @@ class DebugServer(Node):
     def __init__(self):
         super().__init__('debug_server_node')
         self.qos_profile = qos_profile_sensor_data
-        self.subscription = self.create_subscription(ImagePair, '/stereo/image_pair', self.listener_callback, self.qos_profile)
+        self.subscription = self.create_subscription(ImagePair, '/r1/stereo/image_pair', self.listener_callback, self.qos_profile)
 
     def listener_callback(self, msg):
         global latest_frame
