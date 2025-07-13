@@ -28,6 +28,28 @@ def generate_launch_description():
         output='screen'
     )
 
+    # Get cv_algorithms node launch
+    cv_algorithms_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('cv_algorithms'),
+                'launch',
+                'cv_algorithms_launch.py'
+            )
+        )
+    )
+
+    # Get normalizator node launch
+    normalizator_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('normalizator'),
+                'launch',
+                'normalizator_node_launch.py'
+            )
+        )
+    )
+
     server = Node(
         package='debug_server',
         executable='debug_server',
@@ -38,5 +60,7 @@ def generate_launch_description():
     return LaunchDescription([
         lifecycle_launch,
         preprocessing_node,
+        cv_algorithms_launch,
+        normalizator_launch,
         server
     ])

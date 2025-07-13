@@ -1,5 +1,11 @@
 /*
- *
+ * Definitions of costructors, methods, variables and constants
+ * for the NormalizatorNode.
+ * This node has the objective to convert some custom ROS 2
+ * messages to a JSON format, stored in the classic string format,
+ * which makes the job easier for the modem to parse and communicate
+ * the results. It is an intermediary node between image elaboration
+ * (performed by the package "cv_algorithms") and the modem.
  */
 
 #ifndef NORMALIZATOR_NODE_HPP
@@ -31,44 +37,51 @@ class NormalizatorNode : public rclcpp_lifecycle::LifecycleNode
         const std::string PARAM_DESCR_DEBUG {"Prints additional debug informations."};
 
         /**
-         * Class default constructor
+         * Class default constructor, takes in input the name for the new node.
          */
         explicit NormalizatorNode(std::string);
 
         /**
-         *
+         * Lifecycle node function called when the node is first instanced.
+         * Called only once during the life time of the node.
          */
         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_configure(const rclcpp_lifecycle::State&);
 
         /**
-         *
+         * Lifecycle node function called to start / restore the running state
+         * of the node, it initializes any active component.
+         * Reverses the changes made by "on_activate".
          */
         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(const rclcpp_lifecycle::State&);
 
         /**
-         *
+         * Lifecycle node function called when the node is paused due
+         * to error or to the programmer choice, it stops any active component.
+         * Reverses the changes made by "on_activate".
          */
         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State&);
 
         /**
-         *
+         * Lifecycle node function called before the node is killed
+         * to prepare it before destruction.
          */
         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_cleanup(const rclcpp_lifecycle::State&);
 
         /**
-         *
+         * Lifecycle node function called when the node is killed,
+         * it frees any resource allocated.
          */
         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_shutdown(const rclcpp_lifecycle::State&);
 
     private:
 
         /**
-         *
+         * Function to parse the parameters given in input.
          */
         void init_param(void);
 
         /**
-         *
+         * Function to initialize node's variables.
          */
         void init_var(void);
 

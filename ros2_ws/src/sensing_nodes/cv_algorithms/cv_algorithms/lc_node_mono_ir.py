@@ -1,7 +1,7 @@
 import rclpy
 from cv_bridge import CvBridge
 from modem_msgs.msg import MonoIR
-from custom_msgs.msg import ImagePair
+from dual_camera_msgs.msg import ImagePair
 from sensor_msgs.msg import CompressedImage
 from rclpy.qos import QoSProfile, HistoryPolicy
 from rcl_interfaces.msg import ParameterDescriptor
@@ -63,7 +63,6 @@ class MonoIRNode(Node):
         self.busy = False
         # Initialize QoS profiles
         qos_profile_pub = QoSProfile(depth=self.QOS_DEPTH_PUB)
-        #qos_profile_sub = QoSProfile(history=HistoryPolicy.KEEP_LAST, depth=self.QOS_DEPTH_SUB)
         # Publisher
         self.publisher_ = self.create_lifecycle_publisher(MonoIR, self.TN_MONO, qos_profile_pub)
         # Subscriber
@@ -81,6 +80,7 @@ class MonoIRNode(Node):
         self.model = YOLO(self.MODEL_PATH,task="detect")
 
     """
+    Lifecycle node function to configure the node for the first time
     """
     def on_configure(self, state: State) -> TransitionCallbackReturn:
         self.init_param()
@@ -91,27 +91,35 @@ class MonoIRNode(Node):
         return TransitionCallbackReturn.SUCCESS
 
     """
+    Lifecycle node function to activate the node
     """
     def on_activate(self, state: State) -> TransitionCallbackReturn:
         self.busy = False
+        self.get_logger().info("Monovision I.R. node activated!")
         return super().on_activate(state)
 
     """
+    Lifecycle node function to deactivate the node
     """
     def on_deactivate(self, state: State) -> TransitionCallbackReturn:
         self.busy = True
+        self.get_logger().info("Monovision I.R. node deactivated!")
         return super().on_deactivate(state)
 
     """
+    Lifecycle node function called before killing the node
     """
     def on_cleanup(self, state: State) -> TransitionCallbackReturn:
         self.destroy_publisher(self.publisher_)
         self.destroy_subscriber(self.subscriber_)
+        self.get_logger().info("Monovision I.R. node cleaned!")
         return TransitionCallbackReturn.SUCCESS
 
     """
+    Lifecycle node function called when the node is shut down
     """
     def on_shutdown(self, state: State) -> TransitionCallbackReturn:
+        self.get_logger().info("Monovision I.R. node shut down!")
         return TransitionCallbackReturn.SUCCESS
 
     """
