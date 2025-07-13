@@ -1,5 +1,5 @@
 # Manually defines parameters for this node
-/cv_algorithms/mono_ir_node:
+/cv_algorithms/stereo_vo_node:
     ros__parameters:
         debug:  true
         save:   false

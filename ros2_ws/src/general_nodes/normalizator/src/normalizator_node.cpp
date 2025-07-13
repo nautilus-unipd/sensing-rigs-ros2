@@ -7,14 +7,10 @@
 NormalizatorNode::NormalizatorNode(std::string name_node) : rclcpp_lifecycle::LifecycleNode(name_node)
 {
     this->init_param();
-    RCLCPP_INFO(this->get_logger(), "NormalizatorNode created!");
 }
 
 void NormalizatorNode::init_param(void)
 {
-    // set the parameter for this node
-    // by default it does not print additional
-    // debugging informations
     rcl_interfaces::msg::ParameterDescriptor param_descr_debug = rcl_interfaces::msg::ParameterDescriptor {};
     param_descr_debug.description = this->PARAM_DESCR_DEBUG;
     this->declare_parameter<bool>(this->PARAM_NAME_DEBUG, param_descr_debug);
@@ -22,15 +18,8 @@ void NormalizatorNode::init_param(void)
 
 void NormalizatorNode::init_var(void)
 {
-    // get parameters from config files
     this->debug = this->get_parameter(this->PARAM_NAME_DEBUG).as_bool();
-    if(this->debug)
-        RCLCPP_INFO(this->get_logger(), "Debug: true");
-    else
-        RCLCPP_INFO(this->get_logger(), "Debug: false!");
-        
 
-    // initialize lambda functions
     auto callback_mono_ir = [this](modem_msgs::msg::MonoIR::UniquePtr msg) -> void
     {
         std_msgs::msg::String output;
@@ -59,18 +48,13 @@ void NormalizatorNode::init_var(void)
         }
     };
 
-    // create QoS profiles
-    // keep in memory last 5 messages (they small)
-    // use default profile
     rclcpp::QoS qos_profile_sub = rclcpp::QoS(rclcpp::KeepLast(this->QOS_DEPTH_SUB), rmw_qos_profile_default);
     rclcpp::QoS qos_profile_pub = rclcpp::QoS(rclcpp::KeepLast(this->QOS_DEPTH_PUB), rmw_qos_profile_default);
 
-    // create subscription for every topic
     this->sub_mono_ir_ = this->create_subscription<modem_msgs::msg::MonoIR>(this->TN_MONO_IR, qos_profile_sub, callback_mono_ir);
     this->sub_stereo_vo_ = this->create_subscription<modem_msgs::msg::StereoVO>(this->TN_STEREO_VO, qos_profile_sub, callback_stereo_vo);
     this->sub_stereo_ir_ = this->create_subscription<modem_msgs::msg::StereoIR>(this->TN_STEREO_IR, qos_profile_sub, callback_stereo_ir);
 
-    // create publisher
     this->pub_json_ = this->create_publisher<std_msgs::msg::String>(this->TN_MODEM, qos_profile_pub);
 }
 
@@ -107,6 +91,6 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn Normal
     sub_mono_ir_.reset();
     sub_stereo_ir_.reset();
     sub_stereo_vo_.reset();
-    RCLCPP_INFO(get_logger(), "NormalizatorNode shutting down!");
+    RCLCPP_INFO(get_logger(), "NormalizatorNode shut down!");
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
