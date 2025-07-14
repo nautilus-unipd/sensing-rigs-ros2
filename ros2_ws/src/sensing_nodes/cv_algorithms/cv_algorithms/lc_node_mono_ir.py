@@ -33,8 +33,7 @@ class MonoIRNode(Node):
     COLOR_BOX_AND_TEXT = (0,225,255) # color of bounding boxes and text
     THICKNESS_BOX_AND_TEXT = 1 # thickness of lines and text
     FONT_SIZE = 2 # scale the font size
-	# TODO
-    MODEL_PATH = "/home/ubuntu/ROS2_WSs/ws_sensing_rigs_v_three/src/cv_algorithms/cv_algorithms/models/yolo11n.pt"
+    MODEL_PATH = os.path.join(os.path.abspath(os.getcwd()), "src/sensing_nodes/cv_algorithms/cv_algorithms/models/yolo11n.pt")
 
     """
     Default class constructor

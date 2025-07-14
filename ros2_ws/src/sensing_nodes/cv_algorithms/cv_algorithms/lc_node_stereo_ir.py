@@ -29,7 +29,7 @@ class StereoIRNode(Node):
     PARAM_NAME_DEBUG = "debug"
     PARAM_NAME_SAVE = "save"
     PARAM_NAME_TIME = "time"
-    MODEL_PATH = "/home/ubuntu/ROS2_WSs/ws_sensing_rigs_v_three/src/cv_algorithms/cv_algorithms/models/classifier.pth"
+    MODEL_PATH = os.path.join(os.path.abspath(os.getcwd()), "src/sensing_nodes/cv_algorithms/cv_algorithms/models/classifier.pth")
 
     """
     Default class constructor
@@ -58,7 +58,6 @@ class StereoIRNode(Node):
         self.busy = False
         # Initialize QoS profiles
         qos_profile_pub = QoSProfile(depth = self.QOS_DEPTH_PUB)
-        #qos_profile_sub = QoSProfile(history = HistoryPolicy.KEEP_LAST, depth=self.QOS_DEPTH_SUB)
         # Publisher
         self.publisher_ = self.create_lifecycle_publisher(StereoIR, self.TN_STEREO, qos_profile_pub)
         # Subscriber
