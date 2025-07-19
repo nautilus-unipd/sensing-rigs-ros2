@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node
+from launch_ros.actions import LifecycleNode
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import PathJoinSubstitution
 
@@ -13,13 +13,14 @@ def generate_launch_description():
     param_normalizator = PathJoinSubstitution([FindPackageShare(name_package), "config", "normalizator_node_config.yaml"])
 
     # Create and configure node parameters
-    launch_norm_node = Node(
+    launch_norm_node = LifecycleNode(
         package = name_package,
         executable = name_node,
         name = name_node,
         namespace = name_package,
         parameters = [param_normalizator],
         output = "log",
+        autostart = True
     )
 
     # Return node

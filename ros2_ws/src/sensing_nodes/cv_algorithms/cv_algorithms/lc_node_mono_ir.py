@@ -2,7 +2,7 @@ import rclpy
 from cv_bridge import CvBridge
 from modem_msgs.msg import MonoIR
 from dual_camera_msgs.msg import ImagePair
-from sensor_msgs.msg import CompressedImage
+from sensor_msgs.msg import Image
 from rclpy.qos import QoSProfile, HistoryPolicy
 from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.lifecycle import Node, Publisher, State, TransitionCallbackReturn
@@ -22,8 +22,10 @@ class MonoIRNode(Node):
     """
     TN_MONO = "/output/cv_mono_ir"
     TN_INPUT = "/stereo/image_pair"
+    TN_RESULTS = "/output/cv_mono_ir_frame"
     QOS_DEPTH_SUB = 10
     QOS_DEPTH_PUB = 10
+    QOS_DEPTH_PUB_RES = 1
     PARAM_NAME_DEBUG = "debug"
     PARAM_NAME_SAVE = "save"
     PARAM_NAME_TIME = "time"
@@ -62,8 +64,11 @@ class MonoIRNode(Node):
         self.busy = False
         # Initialize QoS profiles
         qos_profile_pub = QoSProfile(depth=self.QOS_DEPTH_PUB)
-        # Publisher
+        qos_profile_pub_res = QoSProfile(depth=self.QOS_DEPTH_PUB_RES)
+        # Publisher for results
         self.publisher_ = self.create_lifecycle_publisher(MonoIR, self.TN_MONO, qos_profile_pub)
+        # Publisher for result frames
+        self.publisher_res_ = self.create_lifecycle_publisher(Image, self.TN_RESULTS, qos_profile_pub_res)
         # Subscriber
         self.subscriber_ = self.create_subscription(ImagePair, self.TN_INPUT, self.callback_subscribe, qos_profile_sensor_data)
         self.subscriber_
@@ -75,7 +80,6 @@ class MonoIRNode(Node):
         self.bridge = CvBridge()
         self.model = None
         self.prev_gray = None
-        self.last_frameCheck_time = 0
         self.model = YOLO(self.MODEL_PATH,task="detect")
 
     """
@@ -110,6 +114,7 @@ class MonoIRNode(Node):
     """
     def on_cleanup(self, state: State) -> TransitionCallbackReturn:
         self.destroy_publisher(self.publisher_)
+        self.destroy_publisher(self.publisher_res_)
         self.destroy_subscriber(self.subscriber_)
         self.get_logger().info("Monovision I.R. node cleaned!")
         return TransitionCallbackReturn.SUCCESS
@@ -143,9 +148,10 @@ class MonoIRNode(Node):
             message.confidence = cd
             message.box = coordinates
             if self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value:
-                self.get_logger().info("Published message!")
+                pass#self.get_logger().info("Published message!")
             if self.get_parameter(self.PARAM_NAME_SAVE).get_parameter_value().bool_value:
                 self.get_logger().info("Message saved to rosbag!")
+            self.get_logger().info("Pub!")
             self.publisher_.publish(message)
 
     """
@@ -160,7 +166,7 @@ class MonoIRNode(Node):
         else:
             self.busy = True
             if self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value:
-                self.get_logger().info("Frame received!")
+                pass#self.get_logger().info("Frame received!")
             frame = self.bridge.compressed_imgmsg_to_cv2(msg.right)
             if self.get_parameter(self.PARAM_NAME_TIME).get_parameter_value().bool_value:
                 self.time = time.time()
@@ -177,16 +183,19 @@ class MonoIRNode(Node):
                     self.callback_publish(timestamp, name, out[c][0], [out[c][1], out[c][2], out[c][3], out[c][4]])
 
     """
-	Function to analyze a frame
+    Function to analyze a frame
     """
     def analyze_frame(self, frame):
+        if frame is None:
+            self.get_logger().info("Empty frame!")
+            return []
         # Lista per il log
         log_data = ["0000-00-00 00:00:00", "NaC", [0.0, 0.0, 0.0, 0.0, 0.0]]
+        annotated_frame = None
         try:
-            current_time = time.time()
             # Process the current frame, detect movement and save in prev_gray the processed current frame (to avoid processing 2 times the same frame)
             current_gray = gray_and_blur(frame)
-            if(self.prev_gray == None):
+            if self.prev_gray is None:
                 self.prev_gray = current_gray.copy()
                 if self.get_parameter(self.PARAM_NAME_DEBUG).get_parameter_value().bool_value:
                     self.get_logger().info("First frame acquired!")
@@ -199,7 +208,7 @@ class MonoIRNode(Node):
                 annotated_frame = frame.copy()
                 # Filter confidence > CONF_THRESHOLD
                 confident_boxes = [
-                    box for box in results.boxes if box.conf[0] > CONF_THRESHOLD
+                    box for box in results.boxes if box.conf[0] > self.CONF_THRESHOLD
                 ]
                 if confident_boxes:
                     # Save annotated frame
@@ -212,16 +221,15 @@ class MonoIRNode(Node):
                         annotate_frame(self.model, annotated_frame, box, self.COLOR_BOX_AND_TEXT, self.FONT_SIZE, self.THICKNESS_BOX_AND_TEXT)
                         x1, y1, x2, y2 = map(int, box.xyxy[0])
                         log_data.append([float(box.conf[0]), x1, y1, x2, y2])
-                else:
-                    return log_data
-            else:
-                return log_data
             # Reset timer for inference
-            self.last_frameCheck_time = current_time
 
         except Exception as e:
             self.get_logger().error(e)
         finally:
+            if annotated_frame is not None:
+                frame = annotated_frame
+            msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+            self.publisher_res_.publish(msg)
             return log_data
 
 def main(args = None):

@@ -50,9 +50,16 @@ def generate_launch_description():
         )
     )
 
-    server = Node(
+    server_debug = Node(
         package='debug_server',
         executable='debug_server',
+        name='server',
+        output='screen'
+    )
+
+    server_results = Node(
+        package='results_server',
+        executable='results_server',
         name='server',
         output='screen'
     )
@@ -62,5 +69,6 @@ def generate_launch_description():
         preprocessing_node,
         cv_algorithms_launch,
         normalizator_launch,
-        server
+        server_debug,
+        server_results
     ])
