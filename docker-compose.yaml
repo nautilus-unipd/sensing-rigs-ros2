@@ -1,6 +1,6 @@
 services:
   raspberry:
-    image: ghcr.io/nautilus-unipd/raspberry-setup:latest
+    image: ghcr.io/nautilus-unipd/raspberry-setup@sha256:6429aec3c008a8912b52192f8f88de770518a29af2916b0648286c76b4711494
     privileged: true
     network_mode: "host"
     volumes:
