@@ -20,7 +20,7 @@ def generate_launch_description():
         namespace = name_package,
         parameters = [param_normalizator],
         output = "log",
-        autostart = True
+        autostart = False
     )
 
     # Return node

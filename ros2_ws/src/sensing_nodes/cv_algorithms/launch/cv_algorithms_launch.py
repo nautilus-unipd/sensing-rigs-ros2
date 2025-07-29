@@ -23,7 +23,7 @@ def generate_launch_description():
         namespace = name_package,
         parameters = [param_mono_ir],
         output = "log",
-        autostart = True
+        autostart = False
     )
     launch_stereo_ir = LifecycleNode(
         package = name_package,
